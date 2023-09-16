@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket</title>
+</head>
+<body>
+    <h1><%= ticket.title %></h1>
+    <hr>
+    <ul id="listMessage">
+        <% messages.forEach(message => { %>
+            <li><% if (user.id == message.authorId) { %>you<% } else { %>admin<% } %>: <%= message.content %></li>
+        <% }); %>
+    </ul>
+    <from method="post">
+        <textarea id="inputContent" name="content" rows="2" cols="20"></textarea>
+        <br>
+        <input id="ticketId" value="<%= ticket.id %>" type="hidden">
+        <button id="buttonSend" type="button">Send</button>
+    </from>
+    <script src="/socket.io.min.js"></script>
+    <script>
+        const buttonSend = document.getElementById('buttonSend');
+        const inputContent = document.getElementById('inputContent');
+        const ticketId = parseInt(document.getElementById('ticketId').value);
+        const listMessage = document.getElementById('listMessage');
+
+        const socket = io();
+
+        function putMessage(u, c) {
+            const newListItem = document.createElement('li');
+            newListItem.textContent = u + ": " + c;
+            listMessage.appendChild(newListItem);
+        }
+
+        socket.on('get-message', (m) => {
+            putMessage('admin', m.content);
+        });
+        buttonSend.addEventListener('click', (e) => {
+            e.preventDefault();
+            socket.emit('new-message', {
+                content: inputContent.value,
+                ticketId
+            });
+            putMessage('you', inputContent.value);
+            inputContent.value = "";
+        });
+
+    </script>
+</body>
+</html>

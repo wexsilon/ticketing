@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>List All Ticket</title>
+</head>
+<body>
+    <h1>List All Ticket</h1>
+    <a href="/ticket/create">Create New Ticket</a>
+    <hr>
+    <ul id="listTicket">
+        <% tickets.forEach(ticket => { %>
+        <li><a href="/ticket/<%= ticket.id %>" target="_blank"><%= ticket.title %></a></li>
+        <% }) %>
+    </ul>
+    <% if (user.isAdmin) { %>
+    <script src="/socket.io.min.js"></script>
+    <script>
+        
+        const listTicket = document.getElementById('listTicket');
+        
+        const socket = io();
+        socket.on('get-ticket', (nt) => {
+            const newListItem = document.createElement('li');
+            const newLink = document.createElement('a');
+            newLink.href = "/ticket/" + nt.id;
+            newLink.target = "_blank";
+            newLink.textContent = nt.title;
+            newListItem.appendChild(newLink);
+            listTicket.appendChild(newListItem);
+        });
+    </script>
+    <% } %>
+</body>
+</html>
